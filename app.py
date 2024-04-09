@@ -56,7 +56,6 @@ def welcome():
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
-
     # Code from climate_starter
     most_recent_date_row = session.query(func.max(measurement.date)).first()
     most_recent_date = most_recent_date_row[0]
@@ -64,7 +63,7 @@ def precipitation():
     last_year_data = session.query(measurement.date, measurement.prcp).filter(measurement.date >= one_year_ago).all()
     df_precip = pd.DataFrame(last_year_data, columns=['Date', 'Precipitation'])
 
-    # Convert the query results from your precipitation analysis (i.e. retrieve only the last 12 months of data) to a dictionary
+    # Convert the precip dataframe to a dictionary
     precip_data = []
     for date, precipitation in last_year_data:
         precip_dict = {}
@@ -77,6 +76,7 @@ def precipitation():
 
 @app.route("/api/v1.0/stations")
 def stations():
+    # Repurposed code from climate_starter and converted to json
     active_stations = session.query(measurement.station, func.count(measurement.station)) \
                                     .group_by(measurement.station) \
                                     .order_by(func.count(measurement.station).desc()) \
@@ -89,6 +89,7 @@ def stations():
 
 @app.route("/api/v1.0/tobs")
 def tobs():
+    #Getting the most active station
     most_recent_date_row = session.query(func.max(measurement.date)).first()
     most_recent_date = most_recent_date_row[0]
     one_year_ago = datetime.strptime(most_recent_date, '%Y-%m-%d') - timedelta(days=365)
@@ -106,7 +107,7 @@ def tobs():
     most_active_station = df_active.loc[df_active['observation_count'].idxmax()]
     most_active_station_id = most_active_station['station']
 
-    # Write a query to retrieve the temperature observations for the most-active station within the date range
+    # Query to retrieve the temperature observations for the most-active station within the date range
     tobs_results = session.query(measurement.date, measurement.tobs).\
         filter(measurement.station == most_active_station_id).\
         filter(measurement.date >= one_year_ago).filter(measurement.date <= most_recent_date).all()
@@ -121,7 +122,8 @@ def tobs():
 @app.route("/api/v1.0//<start>")
 def temp_start(start):
     start_date = dt.datetime.strptime(start, "%Y-%m-%d")
-    
+
+    # Take all data inclusive of the start date and later
     results = session.query(func.min(measurement.tobs), func.avg(measurement.tobs), func.max(measurement.tobs)) \
         .filter(measurement.date >= start_date) \
         .all()
@@ -136,6 +138,7 @@ def temp_start_end(start, end):
     start_date = dt.datetime.strptime(start, "%Y-%m-%d")
     end_date = dt.datetime.strptime(end, "%Y-%m-%d")
     
+    # Take all data inclusive of start date and end date
     results = session.query(func.min(measurement.tobs), func.avg(measurement.tobs), func.max(measurement.tobs)) \
         .filter(measurement.date >= start_date) \
         .filter(measurement.date <= end_date) \
