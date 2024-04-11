@@ -57,8 +57,8 @@ def precipitation():
     # Code from climate_starter
     most_recent_date_row = session.query(func.max(measurement.date)).first()
     most_recent_date = most_recent_date_row[0]
-    one_year_ago = datetime.strptime(most_recent_date, '%Y-%m-%d') - timedelta(days=365)
-    last_year_data = session.query(measurement.date, measurement.prcp).filter(measurement.date >= one_year_ago).all()
+    one_year_ago = datetime.strptime(most_recent_date, '%Y-%m-%d') - timedelta(days=366)
+    last_year_data = session.query(measurement.date, measurement.prcp).filter(measurement.date > one_year_ago).all()
     df_precip = pd.DataFrame(last_year_data, columns=['Date', 'Precipitation'])
 
     # Convert the precip dataframe to a dictionary
@@ -90,8 +90,8 @@ def tobs():
     #Getting the most active station
     most_recent_date_row = session.query(func.max(measurement.date)).first()
     most_recent_date = most_recent_date_row[0]
-    one_year_ago = datetime.strptime(most_recent_date, '%Y-%m-%d') - timedelta(days=365)
-    last_year_data = session.query(measurement.date, measurement.prcp).filter(measurement.date >= one_year_ago).all()
+    one_year_ago = datetime.strptime(most_recent_date, '%Y-%m-%d') - timedelta(days=366)
+    last_year_data = session.query(measurement.date, measurement.prcp).filter(measurement.date > one_year_ago).all()
     
     active_stations = session.query(measurement.station, func.count(measurement.station)) \
                                 .group_by(measurement.station) \
