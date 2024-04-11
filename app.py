@@ -48,7 +48,7 @@ def welcome():
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
         f"/api/v1.0/start<br/>"
-        f"/api/v1.0/<start>/<end>"
+        f"/api/v1.0/start/end<br/>"
     )
 
 
@@ -69,6 +69,7 @@ def precipitation():
         precip_dict["Precipitation"] = precipitation
         precip_data.append(precip_dict)
 
+    session.close()
     return jsonify(precip_data)
 
 
@@ -82,6 +83,7 @@ def stations():
     
     stations_list = [{'station': row.station} for row in active_stations]
     
+    session.close()
     return jsonify(stations_list)
 
 
@@ -114,10 +116,11 @@ def tobs():
     for result in tobs_results:
         temp_observation_data.append({"date": result.date, "tobs": result.tobs})
     
+    session.close()
     return jsonify(temp_observation_data)
 
 
-@app.route("/api/v1.0//<start>")
+@app.route("/api/v1.0/<start>")
 def temp_start(start):
     start_date = dt.datetime.strptime(start, "%Y-%m-%d")
 
@@ -128,10 +131,11 @@ def temp_start(start):
     
     temp_stats = list(results[0])
     
+    session.close()
     return jsonify({"TMIN": temp_stats[0], "TAVG": temp_stats[1], "TMAX": temp_stats[2]})
 
 
-@app.route("/api/v1.0//<start>/<end>")
+@app.route("/api/v1.0/<start>/<end>")
 def temp_start_end(start, end):
     start_date = dt.datetime.strptime(start, "%Y-%m-%d")
     end_date = dt.datetime.strptime(end, "%Y-%m-%d")
@@ -143,7 +147,7 @@ def temp_start_end(start, end):
         .all()
     
     temp_stats = list(results[0])
-    
+    session.close()
     return jsonify({"TMIN": temp_stats[0], "TAVG": temp_stats[1], "TMAX": temp_stats[2]})
 
 
